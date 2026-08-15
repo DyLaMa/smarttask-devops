@@ -6,7 +6,7 @@ pipeline {
     environment {
         FRONTEND_IMAGE = 'smarttask-frontend'
         BACKEND_IMAGE = 'smarttask-backend'
-        DOCKER_REGISTRY = 'docker.io/manadlm'
+        DOCKER_REGISTRY = 'docker.io/[VOTRE_NOM_DOCKER_HUB]'
     }
 
     stages {
@@ -21,7 +21,7 @@ pipeline {
             steps {
                 echo 'Construction de l\'image Frontend...'
                 script {
-                    docker.build("${DOCKER_REGISTRY}/${FRONTEND_IMAGE}:${env.BRANCH_NAME}")
+                    docker.build("${DOCKER_REGISTRY}/${FRONTEND_IMAGE}:${env.BRANCH_NAME}", "./frontend")
                 }
             }
         }
@@ -30,7 +30,7 @@ pipeline {
             steps {
                 echo 'Construction de l\'image Backend...'
                 script {
-                    docker.build("${DOCKER_REGISTRY}/${BACKEND_IMAGE}:${env.BRANCH_NAME}")
+                    docker.build("${DOCKER_REGISTRY}/${BACKEND_IMAGE}:${env.BRANCH_NAME}", "./backend")
                 }
             }
         }
