@@ -6,7 +6,7 @@ pipeline {
     environment {
         FRONTEND_IMAGE = 'smarttask-frontend'
         BACKEND_IMAGE = 'smarttask-backend'
-        DOCKER_REGISTRY = 'docker.io/[VOTRE_NOM_DOCKER_HUB]'
+        DOCKER_REGISTRY = 'docker.io/manadlm'
     }
 
     stages {
