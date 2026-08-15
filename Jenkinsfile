@@ -7,6 +7,7 @@ pipeline {
         FRONTEND_IMAGE = 'smarttask-frontend'
         BACKEND_IMAGE = 'smarttask-backend'
         DOCKER_REGISTRY = 'docker.io/manadlm'
+        DOCKER_CREDENTIALS = 'docker-hub-credentials'
     }
 
     stages {
@@ -37,10 +38,10 @@ pipeline {
 
         stage('Login Docker Hub') {
             steps {
-                echo 'Connexion à Docker Hub...'
+                echo 'Connexion à Docker Hub avec le token...'
                 script {
-                    docker.withRegistry('', 'docker-hub-credentials') {
-                        // Login géré par Jenkins
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS) {
+                        // Login automatique
                     }
                 }
             }
@@ -50,8 +51,10 @@ pipeline {
             steps {
                 echo 'Publication des images sur Docker Hub...'
                 script {
-                    docker.image("${DOCKER_REGISTRY}/${FRONTEND_IMAGE}:${env.BRANCH_NAME}").push()
-                    docker.image("${DOCKER_REGISTRY}/${BACKEND_IMAGE}:${env.BRANCH_NAME}").push()
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS) {
+                        docker.image("${DOCKER_REGISTRY}/${FRONTEND_IMAGE}:${env.BRANCH_NAME}").push()
+                        docker.image("${DOCKER_REGISTRY}/${BACKEND_IMAGE}:${env.BRANCH_NAME}").push()
+                    }
                 }
             }
         }
