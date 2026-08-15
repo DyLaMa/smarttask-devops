@@ -1,0 +1,51 @@
+version: '3.9'
+
+services:
+  # Service Base de Données
+  db:
+    image: postgres:15
+    container_name: smarttask-db
+    environment:
+      POSTGRES_USER: task_user
+      POSTGRES_PASSWORD: task_password
+      POSTGRES_DB: smarttask_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - smarttask-network
+    restart: unless-stopped
+
+  # Service Backend
+  backend:
+    build: ./backend
+    container_name: smarttask-backend
+    environment:
+      DATABASE_URL: postgresql://task_user:task_password@db:5432/smarttask_db
+    ports:
+      - "3001:3000"
+    depends_on:
+      - db
+    networks:
+      - smarttask-network
+    restart: unless-stopped
+
+  # Service Frontend
+  frontend:
+    build: ./frontend
+    container_name: smarttask-frontend
+    ports:
+      - "8081:80"
+    depends_on:
+      - backend
+    networks:
+      - smarttask-network
+    restart: unless-stopped
+
+# Définition des volumes persistants
+volumes:
+  postgres_data:
+
+# Définition du réseau dédié
+networks:
+  smarttask-network:
+    driver: bridge
