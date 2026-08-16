@@ -1,10 +1,10 @@
 version: '3.9'
 
 services:
-  # Service Base de Données
+  # Base de données PostgreSQL
   db:
     image: postgres:15
-    container_name: smarttask-db
+    container_name: annuaire-db
     environment:
       POSTGRES_USER: task_user
       POSTGRES_PASSWORD: task_password
@@ -12,40 +12,49 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - smarttask-network
+      - annuaire-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U task_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  # Service Backend
+  # Backend API
   backend:
     build: ./backend
-    container_name: smarttask-backend
+    container_name: test-backend
     environment:
-      DATABASE_URL: postgresql://task_user:task_password@db:5432/smarttask_db
+      POSTGRES_HOST: db
+      POSTGRES_USER: task_user
+      POSTGRES_PASSWORD: task_password
+      POSTGRES_DB: smarttask_db
     ports:
-      - "3001:3000"
+      - "3002:3000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
-      - smarttask-network
+      - annuaire-network
     restart: unless-stopped
 
-  # Service Frontend
+  # Frontend React
   frontend:
     build: ./frontend
-    container_name: smarttask-frontend
+    container_name: test-frontend
     ports:
-      - "8081:80"
+      - "8082:80"
     depends_on:
       - backend
     networks:
-      - smarttask-network
+      - annuaire-network
     restart: unless-stopped
 
-# Définition des volumes persistants
+# Volumes persistants
 volumes:
   postgres_data:
 
-# Définition du réseau dédié
+# Réseau dédié
 networks:
-  smarttask-network:
+  annuaire-network:
     driver: bridge
